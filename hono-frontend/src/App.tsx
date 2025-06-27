@@ -1,107 +1,161 @@
-import { useState, useEffect } from 'react';
+import { useEffect, useState } from "react";
+import "./App.css";
 
-type WishItem = {
-	id: string;
-	name: string;
-	category: 'necessity' | 'nice_to_have';
-	desireLevel: 1 | 2 | 3;
-	status: 'wanted' | 'purchased' | 'maybe_not_needed' | 'not_needed';
-	reason: string;
-	memo: string;
-	score: number;
+type WishlistItem = {
+  id: number;
+  item: string;
+  category: "necessity" | "improvement";
+  desireLevel: 1 | 2 | 3;
+  status: "wanted" | "purchased" | "maybe_unnecessary" | "unnecessary";
+  reason: string;
+  memo: string;
+  score: number;
 };
 
 function App() {
-	const [items, setItems] = useState<WishItem[]>([]);
+  const [wishlist, setWishlist] = useState<WishlistItem[]>([]);
+  const [item, setItem] = useState("");
+  const [category, setCategory] = useState<"necessity" | "improvement">("necessity");
+  const [desireLevel, setDesireLevel] = useState<1 | 2 | 3>(1);
+  const [reason, setReason] = useState("");
+  const [memo, setMemo] = useState("");
 
-	useEffect(() => {
-		const fetchItems = async () => {
-			const res = await fetch('https://hono-backend.scmu.workers.dev/items');
-			const data = await res.json();
-			setItems(data.keys.map((key: any) => JSON.parse(key.metadata)));
-		};
-		fetchItems();
-	}, []);
+  useEffect(() => {
+    const fetchWishlist = async () => {
+      try {
+        const response = await fetch("http://localhost:8787/api/wishlist");
+        if (!response.ok) {
+          throw new Error(`HTTP error! status: ${response.status}`);
+        }
+        const data = await response.json();
+        setWishlist(data);
+      } catch (error) {
+        console.error("Failed to fetch wishlist:", error);
+      }
+    };
+    fetchWishlist();
+  }, []);
+
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!item) return;
+
+    const newItemData = {
+      item,
+      category,
+      desireLevel,
+      status: "wanted", // Default status
+      reason,
+      memo,
+    };
+
+    try {
+      const response = await fetch("http://localhost:8787/api/wishlist", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify(newItemData),
+      });
+
+      if (!response.ok) {
+        throw new Error(`HTTP error! status: ${response.status}`);
+      }
+
+      const addedItem = await response.json();
+      setWishlist([...wishlist, addedItem]);
+
+      // Reset form fields
+      setItem("");
+      setCategory("necessity");
+      setDesireLevel(1);
+      setReason("");
+      setMemo("");
+    } catch (error) {
+      console.error("Failed to add item:", error);
+    }
+  };
 
   return (
     <div className="container">
-      <h1 className="my-4">欲しいものリスト</h1>
-      <form className="mb-4" onSubmit={async (e) => {
-        e.preventDefault();
-        const form = e.target as HTMLFormElement;
-        const formData = new FormData(form);
-        const newItem: Omit<WishItem, 'id' | 'score'> = {
-          name: formData.get('name') as string,
-          category: formData.get('category') as 'necessity' | 'nice_to_have',
-          desireLevel: parseInt(formData.get('desireLevel') as string) as 1 | 2 | 3,
-          status: formData.get('status') as 'wanted' | 'purchased' | 'maybe_not_needed' | 'not_needed',
-          reason: formData.get('reason') as string,
-          memo: formData.get('memo') as string,
-        };
-
-        const res = await fetch('https://hono-backend.scmu.workers.dev/items', {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json',
-          },
-          body: JSON.stringify(newItem),
-        });
-        const addedItem = await res.json();
-        setItems([...items, addedItem]);
-        form.reset();
-      }}>
-        <div className="mb-3">
-          <label htmlFor="name" className="form-label">名前</label>
-          <input type="text" className="form-control" id="name" name="name" required />
+      <h1>欲しいものリスト</h1>
+      <form onSubmit={handleSubmit} className="wishlist-form">
+        <div className="form-group">
+          <label>欲しいもの:</label>
+          <input
+            type="text"
+            value={item}
+            onChange={(e) => setItem(e.target.value)}
+            required
+          />
         </div>
-        <div className="mb-3">
-          <label htmlFor="category" className="form-label">カテゴリ</label>
-          <select className="form-select" id="category" name="category" required>
+        <div className="form-group">
+          <label>カテゴリ:</label>
+          <select
+            value={category}
+            onChange={(e) => setCategory(e.target.value as "necessity" | "improvement")}
+          >
             <option value="necessity">必需品</option>
-            <option value="nice_to_have">生活向上</option>
+            <option value="improvement">生活向上</option>
           </select>
         </div>
-        <div className="mb-3">
-          <label htmlFor="desireLevel" className="form-label">欲しい度</label>
-          <select className="form-select" id="desireLevel" name="desireLevel" required>
-            <option value="3">高</option>
-            <option value="2">中</option>
-            <option value="1">低</option>
+        <div className="form-group">
+          <label>欲しい度:</label>
+          <select
+            value={desireLevel}
+            onChange={(e) => setDesireLevel(Number(e.target.value) as 1 | 2 | 3)}
+          >
+            <option value={1}>★☆☆</option>
+            <option value={2}>★★☆</option>
+            <option value={3}>★★★</option>
           </select>
         </div>
-        <div className="mb-3">
-          <label htmlFor="status" className="form-label">状態</label>
-          <select className="form-select" id="status" name="status" required>
-            <option value="wanted">欲しい！</option>
-            <option value="purchased">購入完了</option>
-            <option value="maybe_not_needed">いらないかも</option>
-            <option value="not_needed">いらない</option>
-          </select>
+        <div className="form-group">
+          <label>必要な理由:</label>
+          <textarea
+            value={reason}
+            onChange={(e) => setReason(e.target.value)}
+          />
         </div>
-        <div className="mb-3">
-          <label htmlFor="reason" className="form-label">必要な理由</label>
-          <textarea className="form-control" id="reason" name="reason"></textarea>
+        <div className="form-group">
+          <label>メモ:</label>
+          <textarea
+            value={memo}
+            onChange={(e) => setMemo(e.target.value)}
+          />
         </div>
-        <div className="mb-3">
-          <label htmlFor="memo" className="form-label">メモ</label>
-          <textarea className="form-control" id="memo" name="memo"></textarea>
-        </div>
-        <button type="submit" className="btn btn-primary">追加</button>
+        <button type="submit">追加</button>
       </form>
 
-      <h2>アイテム一覧</h2>
-      <ul className="list-group">
-        {items.sort((a, b) => b.score - a.score).map((item) => (
-          <li key={item.id} className="list-group-item">
-            <h5>{item.name} <span className="badge bg-secondary">スコア: {item.score.toFixed(2)}</span></h5>
-            <p>カテゴリ: {item.category === 'necessity' ? '必需品' : '生活向上'}</p>
-            <p>欲しい度: {item.desireLevel}</p>
-            <p>状態: {item.status}</p>
-            {item.reason && <p>必要な理由: {item.reason}</p>}
-            {item.memo && <p>メモ: {item.memo}</p>}
-          </li>
-        ))}
-      </ul>
+      <div className="wishlist-display">
+        <h2>リスト一覧</h2>
+        <table>
+          <thead>
+            <tr>
+              <th>欲しいもの</th>
+              <th>カテゴリ</th>
+              <th>欲しい度</th>
+              <th>状態</th>
+              <th>スコア</th>
+              <th>理由</th>
+              <th>メモ</th>
+            </tr>
+          </thead>
+          <tbody>
+            {wishlist.map((wish) => (
+              <tr key={wish.id}>
+                <td>{wish.item}</td>
+                <td>{wish.category === "necessity" ? "必需品" : "生活向上"}</td>
+                <td>{'★'.repeat(wish.desireLevel)}{'☆'.repeat(3 - wish.desireLevel)}</td>
+                <td>{wish.status}</td>
+                <td>{wish.score}</td>
+                <td>{wish.reason}</td>
+                <td>{wish.memo}</td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      </div>
     </div>
   );
 }
