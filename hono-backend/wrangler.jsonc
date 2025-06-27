@@ -5,7 +5,7 @@
 {
 	"$schema": "node_modules/wrangler/config-schema.json",
 	"name": "hono-backend",
-	"main": "src/index.ts",
+	"main": "dist/index.js",
 	"compatibility_date": "2025-06-20",
 	"compatibility_flags": [
 		"global_fetch_strictly_public"
@@ -13,8 +13,9 @@
 	"assets": {
 		"directory": "./public"
 	},
-	"observability": {
-		"enabled": true
+	"build": {
+		"command": "npm run build-worker",
+		"cwd": "."
 	},
 	/**
 	 * Smart Placement
@@ -54,6 +55,10 @@
 		{
 			"binding": "WISH_LIST_KV",
 			"id": "8f7e6f7001414ee2b670e02cb9913bbb"
+		},
+		{
+			"binding": "WISH_USERS_KV",
+			"id": "4b8816956c32464eb1a0ccc9f8319350"
 		}
 	]
 }

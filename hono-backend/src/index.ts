@@ -1,49 +1,66 @@
 import { Hono } from 'hono';
+import { cors } from 'hono/cors';
 
 type Bindings = {
-	WISH_LIST_KV: KVNamespace;
+  WISH_LIST_KV: KVNamespace;
 };
 
-type WishItem = {
-	id: string;
-	name: string;
-	category: 'necessity' | 'nice_to_have';
-	desireLevel: 1 | 2 | 3;
-	status: 'wanted' | 'purchased' | 'maybe_not_needed' | 'not_needed';
-	reason: string;
-	memo: string;
-	score: number;
+type WishlistItem = {
+  id: number;
+  item: string;
+  category: 'necessity' | 'improvement';
+  desireLevel: 1 | 2 | 3;
+  status: 'wanted' | 'purchased' | 'maybe_unnecessary' | 'unnecessary';
+  reason: string;
+  memo: string;
+  score: number;
 };
 
 const app = new Hono<{ Bindings: Bindings }>();
 
-app.get('/', (c) => c.text('Hello Hono!'));
+app.use('*', cors());
 
-app.get('/items', async (c) => {
-	const items = await c.env.WISH_LIST_KV.list();
-	return c.json(items);
+const calculateScore = (item: Omit<WishlistItem, 'id' | 'score'>) => {
+  const categoryCoefficients = {
+    necessity: 1.5,
+    improvement: 1.2,
+  };
+
+  const statusCoefficients = {
+    wanted: 1.0,
+    purchased: 0,
+    maybe_unnecessary: 0.5,
+    unnecessary: 0,
+  };
+
+  const score = categoryCoefficients[item.category] * item.desireLevel * statusCoefficients[item.status];
+  return Math.round(score * 10) / 10; // Round to one decimal place
+};
+
+app.get('/api/wishlist', async (c) => {
+  const kvValue = await c.env.WISH_LIST_KV.get('wishlist');
+  const wishlist = kvValue ? JSON.parse(kvValue) : [];
+  return c.json(wishlist);
 });
 
-app.post('/items', async (c) => {
-	const item = await c.req.json<Omit<WishItem, 'id' | 'score'>
-	const id = crypto.randomUUID();
+app.post('/api/wishlist', async (c) => {
+  const newItemData = await c.req.json();
 
-	const categoryCoefficient = item.category === 'necessity' ? 1.5 : 1.0;
-	const desireCoefficient = item.desireLevel;
-	const statusCoefficient = {
-		wanted: 1.0,
-		maybe_not_needed: 0.1,
-		purchased: 0,
-		not_needed: 0,
-	}[item.status];
+  const kvValue = await c.env.WISH_LIST_KV.get('wishlist');
+  const wishlist: WishlistItem[] = kvValue ? JSON.parse(kvValue) : [];
 
-	const score = categoryCoefficient * desireCoefficient * statusCoefficient;
+  const newId = wishlist.length > 0 ? Math.max(...wishlist.map((i) => i.id)) + 1 : 1;
 
-	const newItem: WishItem = { ...item, id, score };
+  const newItem: WishlistItem = {
+    id: newId,
+    ...newItemData,
+    score: calculateScore(newItemData),
+  };
 
-	await c.env.WISH_LIST_KV.put(id, JSON.stringify(newItem));
+  wishlist.push(newItem);
+  await c.env.WISH_LIST_KV.put('wishlist', JSON.stringify(wishlist));
 
-	return c.json(newItem);
+  return c.json(newItem);
 });
 
 export default app;
