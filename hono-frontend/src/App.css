@@ -1,96 +1,297 @@
-.container {
-  width: 80%;
-  margin: 2rem auto;
-  font-family: sans-serif;
+/* General Body and Container Styles */
+body {
+  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+  background-color: #f4f7f6;
+  color: #333;
+  line-height: 1.6;
+  margin: 0;
+  padding: 0;
 }
 
+.container {
+  max-width: 960px;
+  margin: 2rem auto;
+  padding: 2rem;
+  background-color: #ffffff;
+  border-radius: 10px;
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+}
+
+/* Headings */
 h1 {
   text-align: center;
-  color: #333;
+  color: #2c3e50;
+  margin-bottom: 2rem;
+  font-size: 2.5em;
+  font-weight: 600;
 }
 
-.wishlist-form {
+h2 {
+  color: #34495e;
+  border-bottom: 2px solid #eceff1;
+  padding-bottom: 0.8rem;
+  margin-top: 2.5rem;
+  margin-bottom: 1.5rem;
+  font-size: 1.8em;
+}
+
+/* Form Styles */
+.wishlist-form,
+.edit-form {
   margin-bottom: 2rem;
-  padding: 1.5rem;
-  border: 1px solid #ddd;
+  padding: 1.8rem;
+  border: 1px solid #e0e0e0;
   border-radius: 8px;
-  background-color: #f9f9f9;
+  background-color: #fdfdfd;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
 }
 
 .form-group {
-  margin-bottom: 1rem;
+  margin-bottom: 1.2rem;
 }
 
 .form-group label {
   display: block;
-  margin-bottom: 0.5rem;
-  font-weight: bold;
+  margin-bottom: 0.6rem;
+  font-weight: 500;
   color: #555;
+  font-size: 0.95em;
 }
 
 .form-group input,
 .form-group select,
 .form-group textarea {
-  width: 100%;
-  padding: 0.5rem;
+  width: calc(100% - 20px); /* Account for padding */
+  padding: 10px;
   border: 1px solid #ccc;
-  border-radius: 4px;
-  box-sizing: border-box; /* Important for padding and width */
+  border-radius: 5px;
+  box-sizing: border-box;
+  font-size: 1em;
+  transition: border-color 0.3s ease, box-shadow 0.3s ease;
+}
+
+.form-group input:focus,
+.form-group select:focus,
+.form-group textarea:focus {
+  border-color: #007bff;
+  box-shadow: 0 0 0 3px rgba(0, 123, 255, 0.25);
+  outline: none;
 }
 
 .form-group textarea {
-  min-height: 80px;
+  min-height: 90px;
   resize: vertical;
 }
 
-button[type="submit"] {
-  width: 100%;
-  padding: 0.75rem;
+/* Buttons */
+button {
+  padding: 10px 20px;
   border: none;
-  border-radius: 4px;
-  background-color: #007bff;
-  color: white;
-  font-size: 1rem;
+  border-radius: 5px;
+  font-size: 1em;
   cursor: pointer;
-  transition: background-color 0.2s;
+  transition: background-color 0.3s ease, transform 0.2s ease;
+  margin-right: 10px; /* Spacing between buttons */
+}
+
+button[type="submit"] {
+  background-color: #28a745; /* Green for submit */
+  color: white;
+  width: auto; /* Adjust width for submit button */
+  display: inline-block; /* Allow margin-right to work */
 }
 
 button[type="submit"]:hover {
+  background-color: #218838;
+  transform: translateY(-1px);
+}
+
+button.edit-button {
+  background-color: #007bff; /* Blue for edit */
+  color: white;
+}
+
+button.edit-button:hover {
   background-color: #0056b3;
+  transform: translateY(-1px);
 }
 
-.wishlist-display {
-  margin-top: 2rem;
+button.delete-button {
+  background-color: #dc3545; /* Red for delete */
+  color: white;
 }
 
-h2 {
-  color: #333;
-  border-bottom: 2px solid #eee;
-  padding-bottom: 0.5rem;
+button.delete-button:hover {
+  background-color: #c82333;
+  transform: translateY(-1px);
 }
 
-table {
+button[type="button"] {
+  background-color: #6c757d; /* Gray for cancel */
+  color: white;
+}
+
+button[type="button"]:hover {
+  background-color: #5a6268;
+  transform: translateY(-1px);
+}
+
+/* Table Styles */
+.wishlist-display table {
   width: 100%;
   border-collapse: collapse;
-  margin-top: 1rem;
+  margin-top: 1.5rem;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+  border-radius: 8px;
+  overflow: hidden; /* Ensures rounded corners apply to table content */
 }
 
-th,
-td {
-  border: 1px solid #ddd;
-  padding: 0.75rem;
+.wishlist-display th,
+.wishlist-display td {
+  border: 1px solid #e0e0e0;
+  padding: 12px 15px;
   text-align: left;
 }
 
-th {
-  background-color: #f2f2f2;
-  font-weight: bold;
+.wishlist-display th {
+  background-color: #e9ecef;
+  color: #495057;
+  font-weight: 600;
+  text-transform: uppercase;
+  font-size: 0.9em;
 }
 
-tbody tr:nth-child(even) {
-  background-color: #f9f9f9;
+.wishlist-display tbody tr:nth-child(even) {
+  background-color: #f8f9fa;
 }
 
-tbody tr:hover {
-  background-color: #f1f1f1;
+.wishlist-display tbody tr:hover {
+  background-color: #e2f0ff; /* Light blue on hover */
+}
+
+/* Specific column widths for better layout */
+.wishlist-display th:nth-child(1), .wishlist-display td:nth-child(1) { width: 15%; } /* 欲しいもの */
+.wishlist-display th:nth-child(2), .wishlist-display td:nth-child(2) { width: 10%; } /* カテゴリ */
+.wishlist-display th:nth-child(3), .wishlist-display td:nth-child(3) { width: 8%; } /* 欲しい度 */
+.wishlist-display th:nth-child(4), .wishlist-display td:nth-child(4) { width: 10%; } /* 状態 */
+.wishlist-display th:nth-child(5), .wishlist-display td:nth-child(5) { width: 5%; } /* スコア */
+.wishlist-display th:nth-child(6), .wishlist-display td:nth-child(6) { width: 20%; } /* 理由 */
+.wishlist-display th:nth-child(7), .wishlist-display td:nth-child(7) { width: 20%; } /* メモ */
+.wishlist-display th:nth-child(8), .wishlist-display td:nth-child(8) { width: 12%; } /* 操作 */
+
+/* Edit form within table row */
+.edit-form {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  padding: 15px;
+  background-color: #e9f5ff; /* Light blue background for edit form */
+  border-radius: 5px;
+}
+
+.edit-form .form-group {
+  flex: 1 1 calc(50% - 10px); /* Two columns layout */
+  margin-bottom: 0;
+}
+
+.edit-form .form-group label {
+  font-size: 0.85em;
+  margin-bottom: 5px;
+}
+
+.edit-form .form-group input,
+.edit-form .form-group select,
+.edit-form .form-group textarea {
+  width: 100%;
+  padding: 8px;
+  font-size: 0.9em;
+}
+
+.edit-form button {
+  margin-top: 10px;
+  flex: 0 0 auto;
+}
+
+.edit-form button[type="submit"] {
+  background-color: #28a745;
+}
+
+.edit-form button[type="button"] {
+  background-color: #6c757d;
+}
+
+/* Responsive adjustments */
+@media (max-width: 768px) {
+  .container {
+    margin: 1rem auto;
+    padding: 1rem;
+  }
+
+  h1 {
+    font-size: 2em;
+  }
+
+  h2 {
+    font-size: 1.5em;
+  }
+
+  .wishlist-display table,
+  .wishlist-display thead,
+  .wishlist-display tbody,
+  .wishlist-display th,
+  .wishlist-display td,
+  .wishlist-display tr {
+    display: block;
+  }
+
+  .wishlist-display thead tr {
+    position: absolute;
+    top: -9999px;
+    left: -9999px;
+  }
+
+  .wishlist-display tr {
+    border: 1px solid #e0e0e0;
+    margin-bottom: 1rem;
+    border-radius: 8px;
+    overflow: hidden;
+  }
+
+  .wishlist-display td {
+    border: none;
+    border-bottom: 1px solid #e0e0e0;
+    position: relative;
+    padding-left: 50%;
+    text-align: right;
+  }
+
+  .wishlist-display td:last-child {
+    border-bottom: none;
+  }
+
+  .wishlist-display td::before {
+    content: attr(data-label);
+    position: absolute;
+    left: 6px;
+    width: 45%;
+    padding-right: 10px;
+    white-space: nowrap;
+    text-align: left;
+    font-weight: 600;
+    color: #555;
+  }
+
+  /* Add data-label to each td in App.tsx for responsive table */
+  .wishlist-display td:nth-of-type(1)::before { content: "欲しいもの:"; }
+  .wishlist-display td:nth-of-type(2)::before { content: "カテゴリ:"; }
+  .wishlist-display td:nth-of-type(3)::before { content: "欲しい度:"; }
+  .wishlist-display td:nth-of-type(4)::before { content: "状態:"; }
+  .wishlist-display td:nth-of-type(5)::before { content: "スコア:"; }
+  .wishlist-display td:nth-of-type(6)::before { content: "理由:"; }
+  .wishlist-display td:nth-of-type(7)::before { content: "メモ:"; }
+  .wishlist-display td:nth-of-type(8)::before { content: "操作:"; }
+
+  .edit-form .form-group {
+    flex: 1 1 100%; /* Single column layout for edit form on small screens */
+  }
 }
