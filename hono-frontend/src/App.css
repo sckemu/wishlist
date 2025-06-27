@@ -184,6 +184,7 @@ button.delete-button:hover {
   border: 1px solid #ccc;
   border-radius: 5px;
   background-color: #f0f0f0;
+  color: #333; /* Changed text color for better readability */
   cursor: pointer;
   transition: background-color 0.2s, border-color 0.2s;
   font-size: 0.9em;
