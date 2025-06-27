@@ -19,6 +19,8 @@ function App() {
   const [desireLevel, setDesireLevel] = useState<1 | 2 | 3>(1);
   const [reason, setReason] = useState("");
   const [memo, setMemo] = useState("");
+  const [editingItemId, setEditingItemId] = useState<number | null>(null);
+  const [editingItemData, setEditingItemData] = useState<Partial<WishlistItem>>({});
 
   useEffect(() => {
     const fetchWishlist = async () => {
@@ -73,6 +75,66 @@ function App() {
       setMemo("");
     } catch (error) {
       console.error("Failed to add item:", error);
+    }
+  };
+
+  const handleEditClick = (item: WishlistItem) => {
+    setEditingItemId(item.id);
+    setEditingItemData({ ...item });
+  };
+
+  const handleEditChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement>) => {
+    const { name, value } = e.target;
+    setEditingItemData((prev) => ({
+      ...prev,
+      [name]: name === "desireLevel" ? Number(value) : value,
+    }));
+  };
+
+  const handleUpdate = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (editingItemId === null) return;
+
+    try {
+      const response = await fetch(`https://hono-backend.scmu.workers.dev/api/wishlist/${editingItemId}`, {
+        method: "PUT",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify(editingItemData),
+      });
+
+      if (!response.ok) {
+        throw new Error(`HTTP error! status: ${response.status}`);
+      }
+
+      const updatedItem = await response.json();
+      setWishlist(wishlist.map((item) => (item.id === updatedItem.id ? updatedItem : item)));
+      setEditingItemId(null);
+      setEditingItemData({});
+    } catch (error) {
+      console.error("Failed to update item:", error);
+    }
+  };
+
+  const handleCancelEdit = () => {
+    setEditingItemId(null);
+    setEditingItemData({});
+  };
+
+  const handleDelete = async (id: number) => {
+    try {
+      const response = await fetch(`https://hono-backend.scmu.workers.dev/api/wishlist/${id}`, {
+        method: "DELETE",
+      });
+
+      if (!response.ok) {
+        throw new Error(`HTTP error! status: ${response.status}`);
+      }
+
+      setWishlist(wishlist.filter((item) => item.id !== id));
+    } catch (error) {
+      console.error("Failed to delete item:", error);
     }
   };
 
@@ -139,18 +201,101 @@ function App() {
               <th>スコア</th>
               <th>理由</th>
               <th>メモ</th>
+              <th>操作</th>
             </tr>
           </thead>
           <tbody>
             {wishlist.map((wish) => (
               <tr key={wish.id}>
-                <td>{wish.item}</td>
-                <td>{wish.category === "necessity" ? "必需品" : "生活向上"}</td>
-                <td>{'★'.repeat(wish.desireLevel)}{'☆'.repeat(3 - wish.desireLevel)}</td>
-                <td>{wish.status}</td>
-                <td>{wish.score}</td>
-                <td>{wish.reason}</td>
-                <td>{wish.memo}</td>
+                {editingItemId === wish.id ? (
+                  <td colSpan={8}>
+                    <form onSubmit={handleUpdate} className="edit-form">
+                      <div className="form-group">
+                        <label>欲しいもの:</label>
+                        <input
+                          type="text"
+                          name="item"
+                          value={editingItemData.item || ""}
+                          onChange={handleEditChange}
+                          required
+                        />
+                      </div>
+                      <div className="form-group">
+                        <label>カテゴリ:</label>
+                        <select
+                          name="category"
+                          value={editingItemData.category || "necessity"}
+                          onChange={handleEditChange}
+                        >
+                          <option value="necessity">必需品</option>
+                          <option value="improvement">生活向上</option>
+                        </select>
+                      </div>
+                      <div className="form-group">
+                        <label>欲しい度:</label>
+                        <select
+                          name="desireLevel"
+                          value={editingItemData.desireLevel || 1}
+                          onChange={handleEditChange}
+                        >
+                          <option value={1}>★☆☆</option>
+                          <option value={2}>★★☆</option>
+                          <option value={3}>★★★</option>
+                        </select>
+                      </div>
+                      <div className="form-group">
+                        <label>状態:</label>
+                        <select
+                          name="status"
+                          value={editingItemData.status || "wanted"}
+                          onChange={handleEditChange}
+                        >
+                          <option value="wanted">欲しい！</option>
+                          <option value="purchased">購入完了</option>
+                          <option value="maybe_unnecessary">いらないかも</option>
+                          <option value="unnecessary">いらない</option>
+                        </select>
+                      </div>
+                      <div className="form-group">
+                        <label>必要な理由:</label>
+                        <textarea
+                          name="reason"
+                          value={editingItemData.reason || ""}
+                          onChange={handleEditChange}
+                        />
+                      </div>
+                      <div className="form-group">
+                        <label>メモ:</label>
+                        <textarea
+                          name="memo"
+                          value={editingItemData.memo || ""}
+                          onChange={handleEditChange}
+                        />
+                      </div>
+                      <button type="submit">更新</button>
+                      <button type="button" onClick={handleCancelEdit}>キャンセル</button>
+                    </form>
+                  </td>
+                ) : (
+                  <>
+                    <td>{wish.item}</td>
+                    <td>{wish.category === "necessity" ? "必需品" : "生活向上"}</td>
+                    <td>{'★'.repeat(wish.desireLevel)}{'☆'.repeat(3 - wish.desireLevel)}</td>
+                    <td>
+                      {wish.status === "wanted" && "欲しい！"}
+                      {wish.status === "purchased" && "購入完了"}
+                      {wish.status === "maybe_unnecessary" && "いらないかも"}
+                      {wish.status === "unnecessary" && "いらない"}
+                    </td>
+                    <td>{wish.score}</td>
+                    <td>{wish.reason}</td>
+                    <td>{wish.memo}</td>
+                    <td>
+                      <button onClick={() => handleEditClick(wish)}>編集</button>
+                      <button onClick={() => handleDelete(wish.id)}>削除</button>
+                    </td>
+                  </>
+                )}
               </tr>
             ))}
           </tbody>
