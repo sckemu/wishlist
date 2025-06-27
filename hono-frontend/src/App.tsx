@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import React, { useEffect, useState } from "react";
 import "./App.css";
 
 type WishlistItem = {
@@ -19,8 +19,7 @@ function App() {
   const [desireLevel, setDesireLevel] = useState<1 | 2 | 3>(1);
   const [reason, setReason] = useState("");
   const [memo, setMemo] = useState("");
-  const [editingItemId, setEditingItemId] = useState<number | null>(null);
-  const [editingItemData, setEditingItemData] = useState<Partial<WishlistItem>>({});
+  const [editingCell, setEditingCell] = useState<{ id: number | null; field: string | null }>({ id: null, field: null });
 
   useEffect(() => {
     const fetchWishlist = async () => {
@@ -78,30 +77,19 @@ function App() {
     }
   };
 
-  const handleEditClick = (item: WishlistItem) => {
-    setEditingItemId(item.id);
-    setEditingItemData({ ...item });
-  };
+  const handleUpdate = async (id: number, field: string, value: any) => {
+    const itemToUpdate = wishlist.find((item) => item.id === id);
+    if (!itemToUpdate) return;
 
-  const handleEditChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement>) => {
-    const { name, value } = e.target;
-    setEditingItemData((prev) => ({
-      ...prev,
-      [name]: name === "desireLevel" ? Number(value) : value,
-    }));
-  };
-
-  const handleUpdate = async (e: React.FormEvent) => {
-    e.preventDefault();
-    if (editingItemId === null) return;
+    const updatedItemData = { ...itemToUpdate, [field]: value };
 
     try {
-      const response = await fetch(`https://hono-backend.scmu.workers.dev/api/wishlist/${editingItemId}`, {
+      const response = await fetch(`https://hono-backend.scmu.workers.dev/api/wishlist/${id}`, {
         method: "PUT",
         headers: {
           "Content-Type": "application/json",
         },
-        body: JSON.stringify(editingItemData),
+        body: JSON.stringify(updatedItemData),
       });
 
       if (!response.ok) {
@@ -110,16 +98,10 @@ function App() {
 
       const updatedItem = await response.json();
       setWishlist(wishlist.map((item) => (item.id === updatedItem.id ? updatedItem : item)));
-      setEditingItemId(null);
-      setEditingItemData({});
+      setEditingCell({ id: null, field: null }); // Exit editing mode
     } catch (error) {
       console.error("Failed to update item:", error);
     }
-  };
-
-  const handleCancelEdit = () => {
-    setEditingItemId(null);
-    setEditingItemData({});
   };
 
   const handleDelete = async (id: number) => {
@@ -135,6 +117,55 @@ function App() {
       setWishlist(wishlist.filter((item) => item.id !== id));
     } catch (error) {
       console.error("Failed to delete item:", error);
+    }
+  };
+
+  const renderEditableCell = (item: WishlistItem, field: keyof WishlistItem, displayValue: string | JSX.Element) => {
+    const isEditing = editingCell.id === item.id && editingCell.field === field;
+
+    if (isEditing) {
+      switch (field) {
+        case "item":
+        case "reason":
+        case "memo":
+          return (
+            <input
+              type="text"
+              value={item[field] as string}
+              onChange={(e) => handleUpdate(item.id, field, e.target.value)}
+              onBlur={() => setEditingCell({ id: null, field: null })}
+              autoFocus
+            />
+          );
+        case "category":
+          return (
+            <div className="inline-selector">
+              <button onClick={() => handleUpdate(item.id, field, "necessity")}>必需品</button>
+              <button onClick={() => handleUpdate(item.id, field, "improvement")}>生活向上</button>
+            </div>
+          );
+        case "desireLevel":
+          return (
+            <div className="inline-selector">
+              <button onClick={() => handleUpdate(item.id, field, 1)}>★☆☆</button>
+              <button onClick={() => handleUpdate(item.id, field, 2)}>★★☆</button>
+              <button onClick={() => handleUpdate(item.id, field, 3)}>★★★</button>
+            </div>
+          );
+        case "status":
+          return (
+            <div className="inline-selector">
+              <button onClick={() => handleUpdate(item.id, field, "wanted")}>欲しい！</button>
+              <button onClick={() => handleUpdate(item.id, field, "purchased")}>購入完了</button>
+              <button onClick={() => handleUpdate(item.id, field, "maybe_unnecessary")}>いらないかも</button>
+              <button onClick={() => handleUpdate(item.id, field, "unnecessary")}>いらない</button>
+            </div>
+          );
+        default:
+          return displayValue;
+      }
+    } else {
+      return <span onClick={() => setEditingCell({ id: item.id, field: field })}>{displayValue}</span>;
     }
   };
 
@@ -207,95 +238,27 @@ function App() {
           <tbody>
             {wishlist.map((wish) => (
               <tr key={wish.id}>
-                {editingItemId === wish.id ? (
-                  <td colSpan={8}>
-                    <form onSubmit={handleUpdate} className="edit-form">
-                      <div className="form-group">
-                        <label>欲しいもの:</label>
-                        <input
-                          type="text"
-                          name="item"
-                          value={editingItemData.item || ""}
-                          onChange={handleEditChange}
-                          required
-                        />
-                      </div>
-                      <div className="form-group">
-                        <label>カテゴリ:</label>
-                        <select
-                          name="category"
-                          value={editingItemData.category || "necessity"}
-                          onChange={handleEditChange}
-                        >
-                          <option value="necessity">必需品</option>
-                          <option value="improvement">生活向上</option>
-                        </select>
-                      </div>
-                      <div className="form-group">
-                        <label>欲しい度:</label>
-                        <select
-                          name="desireLevel"
-                          value={editingItemData.desireLevel || 1}
-                          onChange={handleEditChange}
-                        >
-                          <option value={1}>★☆☆</option>
-                          <option value={2}>★★☆</option>
-                          <option value={3}>★★★</option>
-                        </select>
-                      </div>
-                      <div className="form-group">
-                        <label>状態:</label>
-                        <select
-                          name="status"
-                          value={editingItemData.status || "wanted"}
-                          onChange={handleEditChange}
-                        >
-                          <option value="wanted">欲しい！</option>
-                          <option value="purchased">購入完了</option>
-                          <option value="maybe_unnecessary">いらないかも</option>
-                          <option value="unnecessary">いらない</option>
-                        </select>
-                      </div>
-                      <div className="form-group">
-                        <label>必要な理由:</label>
-                        <textarea
-                          name="reason"
-                          value={editingItemData.reason || ""}
-                          onChange={handleEditChange}
-                        />
-                      </div>
-                      <div className="form-group">
-                        <label>メモ:</label>
-                        <textarea
-                          name="memo"
-                          value={editingItemData.memo || ""}
-                          onChange={handleEditChange}
-                        />
-                      </div>
-                      <button type="submit">更新</button>
-                      <button type="button" onClick={handleCancelEdit}>キャンセル</button>
-                    </form>
-                  </td>
-                ) : (
-                  <>
-                    <td>{wish.item}</td>
-                    <td>{wish.category === "necessity" ? "必需品" : "生活向上"}</td>
-                    <td>{'★'.repeat(wish.desireLevel)}{'☆'.repeat(3 - wish.desireLevel)}</td>
-                    <td>
-                      {wish.status === "wanted" && "欲しい！"}
-                      {wish.status === "purchased" && "購入完了"}
-                      {wish.status === "maybe_unnecessary" && "いらないかも"}
-                      {wish.status === "unnecessary" && "いらない"}
-                    </td>
-                    <td>{wish.score}</td>
-                    <td>{wish.reason}</td>
-                    <td>{wish.memo}</td>
-                    <td>
-                      <button onClick={() => handleEditClick(wish)}>編集</button>
-                      <button onClick={() => handleDelete(wish.id)}>削除</button>
-                    </td>
-                  </>
-                )}
+                <td>{renderEditableCell(wish, "item", wish.item)}</td>
+                <td className={`category-${wish.category}`}>
+                  {renderEditableCell(wish, "category", wish.category === "necessity" ? "必需品" : "生活向上")}
+                </td>
+                <td className={`desire-level-${wish.desireLevel}`}>
+                  {renderEditableCell(wish, "desireLevel", '★'.repeat(wish.desireLevel) + '☆'.repeat(3 - wish.desireLevel))}
+                </td>
+                <td className={`status-${wish.status}`}>
+                  {renderEditableCell(wish, "status",
+                    wish.status === "wanted" ? "欲しい！" :
+                    wish.status === "purchased" ? "購入完了" :
+                    wish.status === "maybe_unnecessary" ? "いらないかも" :
+                    "いらない"
+                  )}
+                </td>
+                <td>{wish.score}</td>
+                <td>{renderEditableCell(wish, "reason", wish.reason)}</td>
+                <td>{renderEditableCell(wish, "memo", wish.memo)}</td>
+                <td>
+                  <button onClick={() => handleDelete(wish.id)} className="delete-button">削除</button>
+                </td>
               </tr>
             ))}
           </tbody>

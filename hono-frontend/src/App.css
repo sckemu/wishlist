@@ -36,8 +36,7 @@ h2 {
 }
 
 /* Form Styles */
-.wishlist-form,
-.edit-form {
+.wishlist-form {
   margin-bottom: 2rem;
   padding: 1.8rem;
   border: 1px solid #e0e0e0;
@@ -106,16 +105,6 @@ button[type="submit"]:hover {
   transform: translateY(-1px);
 }
 
-button.edit-button {
-  background-color: #007bff; /* Blue for edit */
-  color: white;
-}
-
-button.edit-button:hover {
-  background-color: #0056b3;
-  transform: translateY(-1px);
-}
-
 button.delete-button {
   background-color: #dc3545; /* Red for delete */
   color: white;
@@ -123,16 +112,6 @@ button.delete-button {
 
 button.delete-button:hover {
   background-color: #c82333;
-  transform: translateY(-1px);
-}
-
-button[type="button"] {
-  background-color: #6c757d; /* Gray for cancel */
-  color: white;
-}
-
-button[type="button"]:hover {
-  background-color: #5a6268;
   transform: translateY(-1px);
 }
 
@@ -179,45 +158,81 @@ button[type="button"]:hover {
 .wishlist-display th:nth-child(7), .wishlist-display td:nth-child(7) { width: 20%; } /* メモ */
 .wishlist-display th:nth-child(8), .wishlist-display td:nth-child(8) { width: 12%; } /* 操作 */
 
-/* Edit form within table row */
-.edit-form {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 10px;
-  padding: 15px;
-  background-color: #e9f5ff; /* Light blue background for edit form */
-  border-radius: 5px;
+/* Inline Editing Styles */
+.wishlist-display td span {
+  cursor: pointer;
+  display: block; /* Make the whole cell clickable */
+  min-height: 1.5em; /* Ensure consistent height */
 }
 
-.edit-form .form-group {
-  flex: 1 1 calc(50% - 10px); /* Two columns layout */
-  margin-bottom: 0;
-}
-
-.edit-form .form-group label {
-  font-size: 0.85em;
-  margin-bottom: 5px;
-}
-
-.edit-form .form-group input,
-.edit-form .form-group select,
-.edit-form .form-group textarea {
+.wishlist-display td input[type="text"] {
   width: 100%;
-  padding: 8px;
+  padding: 5px;
+  box-sizing: border-box;
+  border: 1px solid #007bff;
+  border-radius: 3px;
+}
+
+.inline-selector {
+  display: flex;
+  gap: 5px;
+  flex-wrap: wrap;
+}
+
+.inline-selector button {
+  padding: 5px 10px;
+  border: 1px solid #ccc;
+  border-radius: 5px;
+  background-color: #f0f0f0;
+  cursor: pointer;
+  transition: background-color 0.2s, border-color 0.2s;
   font-size: 0.9em;
+  margin-right: 0; /* Override default button margin */
 }
 
-.edit-form button {
-  margin-top: 10px;
-  flex: 0 0 auto;
+.inline-selector button:hover {
+  background-color: #e0e0e0;
+  border-color: #999;
 }
 
-.edit-form button[type="submit"] {
-  background-color: #28a745;
+/* Pastel Color Coding */
+/* Categories */
+.category-necessity {
+  background-color: #e6f7ff; /* Light Blue */
 }
 
-.edit-form button[type="button"] {
-  background-color: #6c757d;
+.category-improvement {
+  background-color: #fff0e6; /* Light Orange */
+}
+
+/* Desire Levels */
+.desire-level-1 {
+  background-color: #e6ffe6; /* Light Green */
+}
+
+.desire-level-2 {
+  background-color: #fffbe6; /* Light Yellow */
+}
+
+.desire-level-3 {
+  background-color: #ffe6e6; /* Light Red */
+}
+
+/* Statuses */
+.status-wanted {
+  background-color: #e6f7ff; /* Light Blue */
+}
+
+.status-purchased {
+  background-color: #e6ffe6; /* Light Green */
+}
+
+.status-maybe_unnecessary {
+  background-color: #fff0e6; /* Light Orange */
+}
+
+.status-unnecessary {
+  background-color: #ffe6e6; /* Light Red */
 }
 
 /* Responsive adjustments */
