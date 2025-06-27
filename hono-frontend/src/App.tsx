@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import { useEffect, useState } from "react";
 import "./App.css";
 
 type WishlistItem = {
@@ -120,7 +120,7 @@ function App() {
     }
   };
 
-  const renderEditableCell = (item: WishlistItem, field: keyof WishlistItem, displayValue: string | JSX.Element) => {
+  const renderEditableCell = (item: WishlistItem, field: keyof WishlistItem, displayValue: string | JSX.Element, className: string = "") => {
     const isEditing = editingCell.id === item.id && editingCell.field === field;
 
     if (isEditing) {
@@ -162,10 +162,10 @@ function App() {
             </div>
           );
         default:
-          return displayValue;
+          return <span className={className}>{displayValue}</span>;
       }
     } else {
-      return <span onClick={() => setEditingCell({ id: item.id, field: field })}>{displayValue}</span>;
+      return <span className={className} onClick={() => setEditingCell({ id: item.id, field: field })}>{displayValue}</span>;
     }
   };
 
@@ -239,18 +239,19 @@ function App() {
             {wishlist.map((wish) => (
               <tr key={wish.id}>
                 <td>{renderEditableCell(wish, "item", wish.item)}</td>
-                <td className={`category-${wish.category}`}>
-                  {renderEditableCell(wish, "category", wish.category === "necessity" ? "必需品" : "生活向上")}
+                <td>
+                  {renderEditableCell(wish, "category", wish.category === "necessity" ? "必需品" : "生活向上", `category-${wish.category}`)}
                 </td>
-                <td className={`desire-level-${wish.desireLevel}`}>
-                  {renderEditableCell(wish, "desireLevel", '★'.repeat(wish.desireLevel) + '☆'.repeat(3 - wish.desireLevel))}
+                <td>
+                  {renderEditableCell(wish, "desireLevel", '★'.repeat(wish.desireLevel) + '☆'.repeat(3 - wish.desireLevel), `desire-level-${wish.desireLevel}`)}
                 </td>
-                <td className={`status-${wish.status}`}>
+                <td>
                   {renderEditableCell(wish, "status",
                     wish.status === "wanted" ? "欲しい！" :
                     wish.status === "purchased" ? "購入完了" :
                     wish.status === "maybe_unnecessary" ? "いらないかも" :
-                    "いらない"
+                    "いらない",
+                    `status-${wish.status}`
                   )}
                 </td>
                 <td>{wish.score}</td>

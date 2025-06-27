@@ -161,8 +161,13 @@ button.delete-button:hover {
 /* Inline Editing Styles */
 .wishlist-display td span {
   cursor: pointer;
-  display: block; /* Make the whole cell clickable */
+  display: inline-block; /* Changed to inline-block for tag-like appearance */
   min-height: 1.5em; /* Ensure consistent height */
+  padding: 4px 8px; /* Padding for tag */
+  border-radius: 12px; /* Rounded corners for tag */
+  font-size: 0.9em; /* Adjust font size for tag */
+  line-height: 1; /* Adjust line height for tag */
+  vertical-align: middle; /* Align vertically */
 }
 
 .wishlist-display td input[type="text"] {
@@ -196,44 +201,53 @@ button.delete-button:hover {
   border-color: #999;
 }
 
-/* Pastel Color Coding */
+/* Pastel Color Coding for Spans (Tags) */
 /* Categories */
 .category-necessity {
   background-color: #e6f7ff; /* Light Blue */
+  color: #2196f3; /* Darker blue text */
 }
 
 .category-improvement {
   background-color: #fff0e6; /* Light Orange */
+  color: #ff9800; /* Darker orange text */
 }
 
 /* Desire Levels */
 .desire-level-1 {
   background-color: #e6ffe6; /* Light Green */
+  color: #4caf50; /* Darker green text */
 }
 
 .desire-level-2 {
   background-color: #fffbe6; /* Light Yellow */
+  color: #ffc107; /* Darker yellow text */
 }
 
 .desire-level-3 {
   background-color: #ffe6e6; /* Light Red */
+  color: #f44336; /* Darker red text */
 }
 
 /* Statuses */
 .status-wanted {
   background-color: #e6f7ff; /* Light Blue */
+  color: #2196f3; /* Darker blue text */
 }
 
 .status-purchased {
   background-color: #e6ffe6; /* Light Green */
+  color: #4caf50; /* Darker green text */
 }
 
 .status-maybe_unnecessary {
   background-color: #fff0e6; /* Light Orange */
+  color: #ff9800; /* Darker orange text */
 }
 
 .status-unnecessary {
   background-color: #ffe6e6; /* Light Red */
+  color: #f44336; /* Darker red text */
 }
 
 /* Responsive adjustments */
