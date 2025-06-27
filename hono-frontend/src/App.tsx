@@ -23,7 +23,7 @@ function App() {
   useEffect(() => {
     const fetchWishlist = async () => {
       try {
-        const response = await fetch("http://localhost:8787/api/wishlist");
+        const response = await fetch("https://hono-backend.scmu.workers.dev/api/wishlist");
         if (!response.ok) {
           throw new Error(`HTTP error! status: ${response.status}`);
         }
@@ -50,7 +50,7 @@ function App() {
     };
 
     try {
-      const response = await fetch("http://localhost:8787/api/wishlist", {
+      const response = await fetch("https://hono-backend.scmu.workers.dev/api/wishlist", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
