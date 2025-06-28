@@ -146,7 +146,7 @@ function App() {
           return (
             <input
               type="number"
-              value={item[field] as number}
+              value={(item[field] as number) || 0}
               onChange={(e) => handleUpdate(item.id, field, Number(e.target.value))}
               onBlur={() => setEditingCell({ id: null, field: null })}
               autoFocus
@@ -208,7 +208,7 @@ function App() {
             {wishlist.slice().sort((a, b) => b.score - a.score).map((wish) => (
               <tr key={wish.id}>
                 <td>{renderEditableCell(wish, "item", wish.item)}</td>
-                <td>{renderEditableCell(wish, "price", `¥${wish.price.toLocaleString()}`)}</td>
+                <td>{renderEditableCell(wish, "price", `¥${(wish.price || 0).toLocaleString()}`)}</td>
                 <td>
                   {renderEditableCell(wish, "category", wish.category === "necessity" ? "必需品" : "生活向上", `category-${wish.category}`)}
                 </td>
