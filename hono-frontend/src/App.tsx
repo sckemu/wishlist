@@ -125,6 +125,14 @@ function App() {
     }
   };
 
+  const handleInputChange = (id: number, field: string, value: any) => {
+    setWishlist(
+      wishlist.map((item) =>
+        item.id === id ? { ...item, [field]: value } : item
+      )
+    );
+  };
+
   const renderEditableCell = (item: WishlistItem, field: keyof WishlistItem, displayValue: string | JSX.Element, className: string = "") => {
     const isEditing = editingCell.id === item.id && editingCell.field === field;
 
@@ -137,8 +145,8 @@ function App() {
             <input
               type="text"
               value={item[field] as string}
-              onChange={(e) => handleUpdate(item.id, field, e.target.value)}
-              onBlur={() => setEditingCell({ id: null, field: null })}
+              onChange={(e) => handleInputChange(item.id, field, e.target.value)}
+              onBlur={(e) => handleUpdate(item.id, field, e.target.value)}
               autoFocus
             />
           );
@@ -147,8 +155,8 @@ function App() {
             <input
               type="number"
               value={(item[field] as number) || 0}
-              onChange={(e) => handleUpdate(item.id, field, Number(e.target.value))}
-              onBlur={() => setEditingCell({ id: null, field: null })}
+              onChange={(e) => handleInputChange(item.id, field, Number(e.target.value))}
+              onBlur={(e) => handleUpdate(item.id, field, Number(e.target.value))}
               autoFocus
             />
           );
