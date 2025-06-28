@@ -27,7 +27,7 @@ function App() {
   useEffect(() => {
     const fetchWishlist = async () => {
       try {
-        const response = await fetch("https://hono-backend.scmu.workers.dev/api/wishlist");
+        const response = await fetch("https://hono-backend.scmu.workers.dev/api/wishlist", { credentials: 'include' });
         if (!response.ok) {
           throw new Error(`HTTP error! status: ${response.status}`);
         }
@@ -60,6 +60,7 @@ function App() {
           "Content-Type": "application/json",
         },
         body: JSON.stringify(newItemData),
+        credentials: 'include',
       });
 
       if (!response.ok) {
@@ -95,6 +96,7 @@ function App() {
           "Content-Type": "application/json",
         },
         body: JSON.stringify(updatedItemData),
+        credentials: 'include',
       });
 
       if (!response.ok) {
@@ -113,6 +115,7 @@ function App() {
     try {
       const response = await fetch(`https://hono-backend.scmu.workers.dev/api/wishlist/${id}`, {
         method: "DELETE",
+        credentials: 'include',
       });
 
       if (!response.ok) {
