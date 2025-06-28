@@ -4,6 +4,7 @@ import "./App.css";
 type WishlistItem = {
   id: number;
   item: string;
+  price: number;
   category: "necessity" | "improvement";
   desireLevel: 1 | 2 | 3;
   status: "wanted" | "purchased" | "maybe_unnecessary" | "unnecessary";
@@ -15,6 +16,7 @@ type WishlistItem = {
 function App() {
   const [wishlist, setWishlist] = useState<WishlistItem[]>([]);
   const [item, setItem] = useState("");
+  const [price, setPrice] = useState(0);
   const [category, setCategory] = useState<"necessity" | "improvement">("necessity");
   const [desireLevel, setDesireLevel] = useState<1 | 2 | 3>(1);
   const [reason, setReason] = useState("");
@@ -43,6 +45,7 @@ function App() {
 
     const newItemData = {
       item,
+      price,
       category,
       desireLevel,
       status: "wanted", // Default status
@@ -68,6 +71,7 @@ function App() {
 
       // Reset form fields
       setItem("");
+      setPrice(0);
       setCategory("necessity");
       setDesireLevel(1);
       setReason("");
@@ -138,6 +142,16 @@ function App() {
               autoFocus
             />
           );
+        case "price":
+          return (
+            <input
+              type="number"
+              value={item[field] as number}
+              onChange={(e) => handleUpdate(item.id, field, Number(e.target.value))}
+              onBlur={() => setEditingCell({ id: null, field: null })}
+              autoFocus
+            />
+          );
         case "category":
           return (
             <div className="inline-selector">
@@ -180,6 +194,7 @@ function App() {
           <thead>
             <tr>
               <th>欲しいもの</th>
+              <th>価格</th>
               <th>カテゴリ</th>
               <th>欲しい度</th>
               <th>状態</th>
@@ -193,6 +208,7 @@ function App() {
             {wishlist.slice().sort((a, b) => b.score - a.score).map((wish) => (
               <tr key={wish.id}>
                 <td>{renderEditableCell(wish, "item", wish.item)}</td>
+                <td>{renderEditableCell(wish, "price", `¥${wish.price.toLocaleString()}`)}</td>
                 <td>
                   {renderEditableCell(wish, "category", wish.category === "necessity" ? "必需品" : "生活向上", `category-${wish.category}`)}
                 </td>
@@ -219,6 +235,7 @@ function App() {
             {isAdding ? (
               <tr>
                 <td><input type="text" value={item} onChange={(e) => setItem(e.target.value)} placeholder="欲しいもの" required /></td>
+                <td><input type="number" value={price} onChange={(e) => setPrice(Number(e.target.value))} placeholder="価格" /></td>
                 <td>
                   <select value={category} onChange={(e) => setCategory(e.target.value as "necessity" | "improvement")}>
                     <option value="necessity">必需品</option>
@@ -243,7 +260,7 @@ function App() {
               </tr>
             ) : (
               <tr>
-                <td colSpan={8} style={{ textAlign: "center" }}>
+                <td colSpan={9} style={{ textAlign: "center" }}>
                   <button onClick={() => setIsAdding(true)} className="add-button">+ 追加</button>
                 </td>
               </tr>
