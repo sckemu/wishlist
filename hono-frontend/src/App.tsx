@@ -190,7 +190,7 @@ function App() {
             </tr>
           </thead>
           <tbody>
-            {wishlist.map((wish) => (
+            {wishlist.slice().sort((a, b) => b.score - a.score).map((wish) => (
               <tr key={wish.id}>
                 <td>{renderEditableCell(wish, "item", wish.item)}</td>
                 <td>
