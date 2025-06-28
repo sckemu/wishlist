@@ -20,6 +20,7 @@ function App() {
   const [reason, setReason] = useState("");
   const [memo, setMemo] = useState("");
   const [editingCell, setEditingCell] = useState<{ id: number | null; field: string | null }>({ id: null, field: null });
+  const [isAdding, setIsAdding] = useState(false);
 
   useEffect(() => {
     const fetchWishlist = async () => {
@@ -37,8 +38,7 @@ function App() {
     fetchWishlist();
   }, []);
 
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
+  const handleSaveNewItem = async () => {
     if (!item) return;
 
     const newItemData = {
@@ -72,6 +72,7 @@ function App() {
       setDesireLevel(1);
       setReason("");
       setMemo("");
+      setIsAdding(false);
     } catch (error) {
       console.error("Failed to add item:", error);
     }
@@ -172,53 +173,6 @@ function App() {
   return (
     <div className="container">
       <h1>欲しいものリスト</h1>
-      <form onSubmit={handleSubmit} className="wishlist-form">
-        <div className="form-group">
-          <label>欲しいもの:</label>
-          <input
-            type="text"
-            value={item}
-            onChange={(e) => setItem(e.target.value)}
-            required
-          />
-        </div>
-        <div className="form-group">
-          <label>カテゴリ:</label>
-          <select
-            value={category}
-            onChange={(e) => setCategory(e.target.value as "necessity" | "improvement")}
-          >
-            <option value="necessity">必需品</option>
-            <option value="improvement">生活向上</option>
-          </select>
-        </div>
-        <div className="form-group">
-          <label>欲しい度:</label>
-          <select
-            value={desireLevel}
-            onChange={(e) => setDesireLevel(Number(e.target.value) as 1 | 2 | 3)}
-          >
-            <option value={1}>★☆☆</option>
-            <option value={2}>★★☆</option>
-            <option value={3}>★★★</option>
-          </select>
-        </div>
-        <div className="form-group">
-          <label>必要な理由:</label>
-          <textarea
-            value={reason}
-            onChange={(e) => setReason(e.target.value)}
-          />
-        </div>
-        <div className="form-group">
-          <label>メモ:</label>
-          <textarea
-            value={memo}
-            onChange={(e) => setMemo(e.target.value)}
-          />
-        </div>
-        <button type="submit">追加</button>
-      </form>
 
       <div className="wishlist-display">
         <h2>リスト一覧</h2>
@@ -262,6 +216,38 @@ function App() {
                 </td>
               </tr>
             ))}
+            {isAdding ? (
+              <tr>
+                <td><input type="text" value={item} onChange={(e) => setItem(e.target.value)} placeholder="欲しいもの" required /></td>
+                <td>
+                  <select value={category} onChange={(e) => setCategory(e.target.value as "necessity" | "improvement")}>
+                    <option value="necessity">必需品</option>
+                    <option value="improvement">生活向上</option>
+                  </select>
+                </td>
+                <td>
+                  <select value={desireLevel} onChange={(e) => setDesireLevel(Number(e.target.value) as 1 | 2 | 3)}>
+                    <option value={1}>★☆☆</option>
+                    <option value={2}>★★☆</option>
+                    <option value={3}>★★★</option>
+                  </select>
+                </td>
+                <td>-</td>
+                <td>-</td>
+                <td><textarea value={reason} onChange={(e) => setReason(e.target.value)} placeholder="理由" /></td>
+                <td><textarea value={memo} onChange={(e) => setMemo(e.target.value)} placeholder="メモ" /></td>
+                <td>
+                  <button onClick={handleSaveNewItem}>保存</button>
+                  <button onClick={() => setIsAdding(false)}>キャンセル</button>
+                </td>
+              </tr>
+            ) : (
+              <tr>
+                <td colSpan={8} style={{ textAlign: "center" }}>
+                  <button onClick={() => setIsAdding(true)} className="add-button">+ 追加</button>
+                </td>
+              </tr>
+            )}
           </tbody>
         </table>
       </div>
