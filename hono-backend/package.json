@@ -12,10 +12,10 @@
 		"test:env": "echo $CLOUDFLARE_API_TOKEN"
 	},
 	"devDependencies": {
-		"@cloudflare/vitest-pool-workers": "^0.8.19",
+		"@cloudflare/vitest-pool-workers": "^0.12.5",
 		"typescript": "^5.5.2",
 		"vitest": "~3.2.0",
-		"wrangler": "^4.22.0"
+		"wrangler": "^4.59.3"
 	},
 	"dependencies": {
 		"@simplewebauthn/server": "^13.1.1",
